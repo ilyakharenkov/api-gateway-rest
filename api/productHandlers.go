@@ -23,11 +23,11 @@ type ProductHttpHandler struct {
 func (handler *ProductHttpHandler) CreateProduct(request *dto.ProductRequest) *dto.ProductResponse {
 	fmt.Printf("Body: %v\n", request)
 	return &dto.ProductResponse{
-		Sku:       "Test Sku",
-		Name:      "Test Name",
-		Quantity:  0,
-		Reserved:  0,
-		Price:     *big.NewRat(9, 99),
+		Sku:       request.Sku,
+		Name:      request.Name,
+		Quantity:  request.Quantity,
+		Reserved:  request.Reserved,
+		Price:     request.Price,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

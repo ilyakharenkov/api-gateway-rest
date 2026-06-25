@@ -18,10 +18,25 @@ func main() {
 			if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
 			}
-			productHandler.CreateProduct(&requestBody)
+
+			response := productHandler.CreateProduct(&requestBody)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+			err := json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		case http.MethodGet:
 			sku := r.URL.Query().Get("sku")
-			productHandler.FindProductBySku(sku)
+			response := productHandler.FindProductBySku(sku)
+
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusCreated)
+			err := json.NewEncoder(w).Encode(response)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}

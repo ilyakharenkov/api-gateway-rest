@@ -1,1 +1,1 @@
-module api-gateway-rest
+module inventoiry-service

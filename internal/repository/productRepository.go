@@ -1,8 +1,9 @@
 package repository
 
-import "inventoiry-service/internal/repository/model"
-
-var products []model.Product
+import (
+	"inventoiry-service/internal/repository/model"
+	"sync"
+)
 
 type ProductRepository interface {
 	CreateProduct(product *model.Product) *model.Product
@@ -11,20 +12,39 @@ type ProductRepository interface {
 }
 
 func NewProductRepository() ProductRepository {
-	return &productRepositoryPostgres{}
+	return &productRepositoryPostgres{
+		products: make([]model.Product, 0),
+	}
 }
 
 type productRepositoryPostgres struct {
+	products []model.Product
+	mu       sync.RWMutex
 }
 
 func (repository *productRepositoryPostgres) CreateProduct(product *model.Product) *model.Product {
-	return &model.Product{}
+	repository.mu.Lock()
+	defer repository.mu.Unlock()
+
+	repository.products = append(repository.products, *product)
+	return product
 }
 
 func (repository *productRepositoryPostgres) FindProductBySku(sku string) *model.Product {
-	return &model.Product{}
+	repository.mu.RLock()
+	defer repository.mu.RUnlock()
+
+	for _, product := range repository.products {
+		if product.Sku == sku {
+			return &product
+		}
+	}
+	return nil
 }
 
 func (repository *productRepositoryPostgres) AdjustStock(sku string, quantity int64) *model.Product {
+	repository.mu.RLock()
+	defer repository.mu.RUnlock()
+
 	return &model.Product{}
 }

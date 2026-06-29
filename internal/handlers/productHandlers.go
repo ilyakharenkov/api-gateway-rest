@@ -9,17 +9,14 @@ import (
 
 type ProductHandler interface {
 	RegisterRoutes(mux *http.ServeMux)
-	CreateProduct(request *dto.Product) *dto.Product
-	FindProductBySku(sku string) *dto.Product
-	AdjustStock(sku string, request *dto.Stock) *dto.Product
-}
-
-func NewProductHttpHandler(service service.ProductService) ProductHandler {
-	return &productHttpHandler{service: service}
 }
 
 type productHttpHandler struct {
 	service service.ProductService
+}
+
+func NewProductHttpHandler(service service.ProductService) ProductHandler {
+	return &productHttpHandler{service: service}
 }
 
 func (handler *productHttpHandler) RegisterRoutes(mux *http.ServeMux) {
@@ -29,6 +26,7 @@ func (handler *productHttpHandler) RegisterRoutes(mux *http.ServeMux) {
 			var requestBody dto.Product
 			if err := json.NewDecoder(r.Body).Decode(&requestBody); err != nil {
 				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
 			}
 
 			response := handler.CreateProduct(&requestBody)
@@ -44,10 +42,11 @@ func (handler *productHttpHandler) RegisterRoutes(mux *http.ServeMux) {
 
 			if response == nil {
 				http.Error(w, "product by sku not found", http.StatusNotFound)
+				return
 			}
 
 			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusCreated)
+			w.WriteHeader(http.StatusOK)
 			if err := json.NewEncoder(w).Encode(response); err != nil {
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 			}
@@ -66,6 +65,7 @@ func (handler *productHttpHandler) RegisterRoutes(mux *http.ServeMux) {
 
 		if response == nil {
 			http.Error(w, "product by sku not found", http.StatusNotFound)
+			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")

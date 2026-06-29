@@ -33,9 +33,9 @@ func (repository *productRepositoryPostgres) FindProductBySku(sku string) *model
 	repository.mu.RLock()
 	defer repository.mu.RUnlock()
 
-	for _, product := range repository.products {
-		if product.Sku == sku {
-			return &product
+	for index := range repository.products {
+		if repository.products[index].Sku == sku {
+			return &repository.products[index]
 		}
 	}
 	return nil
